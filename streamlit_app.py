@@ -62,17 +62,34 @@ elif st.session_state.page == "classification":
                 df = pd.read_csv(csv_file)
 
                 # Prepare data for the data editor
+                def calculate_statistics(col_data):
+                    if pd.api.types.is_numeric_dtype(col_data):
+                        return {
+                            "Min": col_data.min(),
+                            "Avg": col_data.mean(),
+                            "Max": col_data.max(),
+                            "Nulls": col_data.isnull().sum(),
+                            "Distinct": col_data.nunique()
+                        }
+                    elif pd.api.types.is_string_dtype(col_data):
+                        return {
+                            "Min": "-",
+                            "Avg": "-",
+                            "Max": "-",
+                            "Nulls": col_data.isnull().sum(),
+                            "Distinct": col_data.nunique()
+                        }
+                    else:
+                        return {"Min": "-", "Avg": "-", "Max": "-", "Nulls": "-", "Distinct": "-"}
+
                 data_editor_df = pd.DataFrame({
                     "Column Name": df.columns,
                     "Role": "",
-                    "Statistics": [
-                        f"Mean: {df[col].mean():.2f}, Std: {df[col].std():.2f}, Nulls: {df[col].isnull().sum()}"
-                        if pd.api.types.is_numeric_dtype(df[col]) else
-                        f"Distinct Values: {df[col].nunique()}, Nulls: {df[col].isnull().sum()}"
-                        if pd.api.types.is_string_dtype(df[col]) else
-                        ""
-                        for col in df.columns
-                    ],
+                    "Min": [calculate_statistics(df[col])["Min"] for col in df.columns],
+                    "Avg": [calculate_statistics(df[col])["Avg"] for col in df.columns],
+                    "Max": [calculate_statistics(df[col])["Max"] for col in df.columns],
+                    "Null Values": [calculate_statistics(df[col])["Nulls"] for col in df.columns],
+                    "Distinct Values": [calculate_statistics(df[col])["Distinct"] for col in df.columns],
                     "Sample Data": [
                         ", ".join(map(str, df[col].head(3).tolist())) for col in df.columns
                     ],
@@ -86,7 +103,9 @@ elif st.session_state.page == "classification":
                             default=None, 
                             options=["primary key", "feature", "timepoint", "metadata", "patient metadata", "gene expression"]
                         ),
-                        "Sample Data": st.column_config.ListColumn()
+                        "Sample Data": st.column_config.ListColumn(),
+                        "Null Values": st.column_config.ProgressColumn(width="small", min_value=0, max_value=len(df), format="%d"),
+                        "Distinct Values": st.column_config.ProgressColumn(width="small", min_value=0, max_value=len(df), format="%d")
                     },
                     key=f"data_editor_{csv_file.name}",
                     num_rows="dynamic"
