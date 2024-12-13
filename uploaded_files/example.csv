@@ -1,0 +1,5 @@
+id,gene_name,value,sample,gene1,gene2
+1,ABC,2314,A,423.3,14.1
+2,BCD,5152,A,53.14,31.4
+3,ABC,214,B,525.2,
+4,BCD,552,B,,
