@@ -23,3 +23,6 @@ elif st.session_state.page == "classification":
 
 elif st.session_state.page == "cleaning":
     st.title("Data cleaning")
+    if st.button("Back"):
+        st.session_state.page = "classification"
+        st.rerun()

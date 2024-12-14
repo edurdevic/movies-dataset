@@ -98,5 +98,15 @@ def render():
             except Exception as e:
                 st.error(f"Error reading {csv_file.name}: {e}")
 
-        if st.button("Next"):
-            st.session_state.page = "cleaning"
+        # Place Back and Next buttons inline
+        col1, col2 = st.columns(2)
+
+        with col1:
+            if st.button("Back"):
+                st.session_state.page = "landing"
+                st.rerun()
+
+        with col2:
+            if st.button("Next"):
+                st.session_state.page = "cleaning"
+                st.rerun()
